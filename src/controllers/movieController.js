@@ -1,15 +1,3 @@
-const express = require("express")
-
-const app = express()
-
-const port = 5500
-
-const welcome = (req, res) => {
-  res.send("Welcome to my favourite movie list")
-}
-
-app.get("/", welcome)
-
 const movies = [
   {
     id: 1,
@@ -41,8 +29,6 @@ const getMovies = (req, res) => {
   res.json(movies)
 }
 
-app.get("/api/movies", getMovies)
-
 const getMovieById = (req, res) => {
   const id = parseInt(req.params.id)
 
@@ -55,14 +41,7 @@ const getMovieById = (req, res) => {
   }
 }
 
-app.get("/api/movies/:id", getMovieById)
-
-const server = app.listen(port, (err) => {
-  if (err) {
-    console.error("Something bad happened")
-  } else {
-    console.log(`Server is listening on ${port}`)
-  }
-})
-
-module.exports = server
+module.exports = {
+  getMovies,
+  getMovieById,
+}
