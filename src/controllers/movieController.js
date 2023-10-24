@@ -41,7 +41,22 @@ const getMovieById = (req, res) => {
   }
 }
 
+const createMovie = (req, res) => {
+  const movie = req.body
+
+  console.log(movie)
+
+  if (Object.keys(movie).length !== 5) return res.sendStatus(400)
+
+  movie.id = Math.max(...movies.map((movie) => movie.id)) + 1
+
+  movies.push(movie)
+
+  res.status(201).json({ id: movie.id })
+}
+
 module.exports = {
   getMovies,
   getMovieById,
+  createMovie,
 }
