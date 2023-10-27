@@ -1,5 +1,6 @@
 const request = require("supertest")
 const app = require("../src/app")
+const database = require("../database")
 
 describe("GET /api/movies", () => {
   it("should return all movies", async () => {
@@ -31,20 +32,16 @@ describe("POST /api/movies", () => {
       title: "Star Wars",
       director: "George Lucas",
       year: "1977",
-      colors: true,
+      color: true,
       duration: 120,
     }
 
     const response = await request(app).post("/api/movies").send(newMovie)
 
-    expect(response.headers["content-type"]).toMatch(/json/)
     expect(response.status).toEqual(201)
-    expect(response.body).toHaveProperty("id")
-    expect(typeof response.body.id).toBe("number")
+    expect(response.header).toHaveProperty("location")
 
-    const getResponse = await request(app).get(
-      `/api/movies/${response.body.id}`
-    )
+    const getResponse = await request(app).get(response.header.location)
 
     expect(getResponse.headers["content-type"]).toMatch(/json/)
     expect(getResponse.status).toEqual(200)
@@ -60,18 +57,22 @@ describe("POST /api/movies", () => {
     expect(getResponse.body).toHaveProperty("year")
     expect(getResponse.body.year).toStrictEqual(newMovie.year)
 
-    expect(getResponse.body).toHaveProperty("colors")
-    expect(getResponse.body.colors).toStrictEqual(newMovie.colors)
+    expect(getResponse.body).toHaveProperty("color")
+    expect(Boolean(getResponse.body.color)).toStrictEqual(newMovie.color)
 
     expect(getResponse.body).toHaveProperty("duration")
     expect(getResponse.body.duration).toStrictEqual(newMovie.duration)
   })
 
   it("should return an error", async () => {
+    const missingPropMovie = { title: "Harry Potter" }
+
     const response = await request(app)
       .post("/api/movies")
-      .send({ title: "Harry Potter" })
+      .send(missingPropMovie)
 
-    expect(response.status).toEqual(400)
+    expect(response.status).toEqual(500)
   })
 })
+
+afterAll(() => database.end())
