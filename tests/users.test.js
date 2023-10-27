@@ -69,7 +69,7 @@ describe("POST /api/users", () => {
 
     const response = await request(app).post("/api/users").send(missingPropUser)
 
-    expect(response.status).toEqual(500)
+    expect(response.status).toEqual(422)
   })
 })
 

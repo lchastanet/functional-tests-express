@@ -71,7 +71,77 @@ describe("POST /api/movies", () => {
       .post("/api/movies")
       .send(missingPropMovie)
 
-    expect(response.status).toEqual(500)
+    expect(response.status).toEqual(422)
+  })
+})
+
+describe("PUT /api/movies", () => {
+  it("should return edited movie", async () => {
+    const newMovie = {
+      title: "Avatar",
+      director: "James Cameron",
+      year: "2009",
+      color: true,
+      duration: 162,
+    }
+
+    const { body } = await request(app).get("/api/movies")
+    const lastId = Math.max(...body.map((movie) => movie.id))
+
+    const response = await request(app)
+      .put(`/api/movies/${lastId}`)
+      .send(newMovie)
+
+    expect(response.status).toEqual(204)
+
+    const getResponse = await request(app).get(`/api/movies/${lastId}`)
+
+    expect(getResponse.headers["content-type"]).toMatch(/json/)
+    expect(getResponse.status).toEqual(200)
+
+    expect(getResponse.body).toHaveProperty("id")
+
+    expect(getResponse.body).toHaveProperty("title")
+    expect(getResponse.body.title).toStrictEqual(newMovie.title)
+
+    expect(getResponse.body).toHaveProperty("director")
+    expect(getResponse.body.director).toStrictEqual(newMovie.director)
+
+    expect(getResponse.body).toHaveProperty("year")
+    expect(getResponse.body.year).toStrictEqual(newMovie.year)
+
+    expect(getResponse.body).toHaveProperty("color")
+    expect(Boolean(getResponse.body.color)).toStrictEqual(newMovie.color)
+
+    expect(getResponse.body).toHaveProperty("duration")
+    expect(getResponse.body.duration).toStrictEqual(newMovie.duration)
+  })
+
+  it("should return an error", async () => {
+    const missingPropMovie = { title: "Harry Potter" }
+
+    const { body } = await request(app).get("/api/movies")
+    const lastId = Math.max(...body.map((movie) => movie.id))
+
+    const response = await request(app)
+      .put(`/api/movies/${lastId}`)
+      .send(missingPropMovie)
+
+    expect(response.status).toEqual(422)
+  })
+
+  it("should return no movie", async () => {
+    const newMovie = {
+      title: "Avatar",
+      director: "James Cameron",
+      year: "2009",
+      color: true,
+      duration: 162,
+    }
+
+    const response = await request(app).put("/api/movies/0").send(newMovie)
+
+    expect(response.status).toEqual(404)
   })
 })
 
