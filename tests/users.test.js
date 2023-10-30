@@ -73,4 +73,21 @@ describe("POST /api/users", () => {
   })
 })
 
+describe("DELETE /api/users/:id", () => {
+  it("should return 204 status code", async () => {
+    const { body } = await request(app).get("/api/users")
+    const lastId = Math.max(...body.map((movie) => movie.id))
+
+    const response = await request(app).delete(`/api/users/${lastId}`)
+
+    expect(response.status).toEqual(204)
+  })
+
+  it("should return an error", async () => {
+    const response = await request(app).delete(`/api/users/0`)
+
+    expect(response.status).toEqual(404)
+  })
+})
+
 afterAll(() => database.end())

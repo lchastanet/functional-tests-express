@@ -145,4 +145,21 @@ describe("PUT /api/movies", () => {
   })
 })
 
+describe("DELETE /api/movies/:id", () => {
+  it("should return 204 status code", async () => {
+    const { body } = await request(app).get("/api/movies")
+    const lastId = Math.max(...body.map((movie) => movie.id))
+
+    const response = await request(app).delete(`/api/movies/${lastId}`)
+
+    expect(response.status).toEqual(204)
+  })
+
+  it("should return an error", async () => {
+    const response = await request(app).delete(`/api/movies/0`)
+
+    expect(response.status).toEqual(404)
+  })
+})
+
 afterAll(() => database.end())
